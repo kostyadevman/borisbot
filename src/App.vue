@@ -4,14 +4,13 @@
 </template>
 
 <script lang="ts">
-import BlockList from '@/components/BlockList.vue';
+import BlockList from '@/components/BlockList.vue'
 import LineList from '@/components/LineList.vue'
 
 export default {
   components: {
     BlockList,
-    LineList,
-  },
-
+    LineList
+  }
 }
 </script>

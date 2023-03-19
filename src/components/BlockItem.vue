@@ -1,52 +1,53 @@
-
 <template>
-  <div 
+  <div
     class="block"
+
     ref="el"
     :style="{
+      width: width + 'px',
+      height: width + 'px',
       top: y + 'px',
-      left: x + 'px',
+      left: x + 'px'
     }"
     @mousedown="beginMove"
     @mouseup="endMove"
   >
-  <div
+    <div
       v-for="circle in circles"
       :key="circle"
       :class="[
         `circle ${circle}`,
         {
-          'linked': isLinked(block.id, circle),
-          'active': isSelected(block.id, circle)
+          linked: isLinked(block.id, circle),
+          active: isSelected(block.id, circle)
         }
       ]"
       @click="$emit('select-circle', block.id, circle)"
     >
-    <button class="delete-links-btn" @click="deleteLinksHandler(block, circle)">x</button>
-  </div>
+      <button class="delete-links-btn" @click="deleteLinksHandler(block, circle)">x</button>
+    </div>
     <button class="delete-btn" @click="deleteBlockHandler">x</button>
   </div>
 </template>
-  
+
 <script lang="ts">
 import { defineComponent } from 'vue'
 import type { BlockP, Circle, LinkP } from '@/types/types'
 import Link from '@/models/Link'
 
-
 interface BlockItemData {
-  element: HTMLElement,
-  x: number,
-  y: number,
-  drag: boolean,
-  shiftX: number,
-  shiftY: number,
+  element: HTMLElement
+  x: number
+  y: number
+  drag: boolean
+  shiftX: number
+  shiftY: number
   circles: Circle[]
 }
 
 export default defineComponent({
-  props: ["block", "selected"],
-  data(): BlockItemData  {
+  props: ['block', 'selected', 'width'],
+  data(): BlockItemData {
     return {
       element: this.$refs.el as HTMLElement,
       x: 0,
@@ -54,7 +55,7 @@ export default defineComponent({
       drag: false,
       shiftX: 0,
       shiftY: 0,
-      circles: ['top', 'right', 'bottom', 'left'],
+      circles: ['top', 'right', 'bottom', 'left']
     }
   },
   methods: {
@@ -63,62 +64,65 @@ export default defineComponent({
     },
     deleteLinksHandler(block: BlockP, circle: Circle) {
       Link.delete((link: Link) => {
-        const myLink = link as LinkP;
-        return (myLink.start === block.id && myLink.startCircle === circle) || 
+        const myLink = link as LinkP
+        return (
+          (myLink.start === block.id && myLink.startCircle === circle) ||
           (myLink.end === block.id && myLink.endCircle === circle)
+        )
       })
     },
     beginMove(event: MouseEvent) {
-      this.shiftX = event.clientX - this.element.getBoundingClientRect().left;
-      this.shiftY = event.clientY - this.element.getBoundingClientRect().top;
-      this.element.ondragstart = () => false;
-      this.moveAt(event);
-      document.addEventListener('mousemove', this.onMouseMove);
+      this.shiftX = event.clientX - this.element.getBoundingClientRect().left
+      this.shiftY = event.clientY - this.element.getBoundingClientRect().top
+      this.element.ondragstart = () => false
+      this.moveAt(event)
+      document.addEventListener('mousemove', this.onMouseMove)
     },
     onMouseMove(event: MouseEvent) {
-      this.moveAt(event);
+      this.moveAt(event)
     },
     moveAt(event: MouseEvent) {
-      this.x = event.pageX - this.shiftX;
-      this.y = event.pageY - this.shiftY;
+      this.x = event.pageX - this.shiftX
+      this.y = event.pageY - this.shiftY
 
       this.$emit('update', this.block, this.x, this.y)
     },
     endMove() {
-      document.removeEventListener('mousemove', this.onMouseMove);
-      this.element.onmouseup = null;
+      document.removeEventListener('mousemove', this.onMouseMove)
+      this.element.onmouseup = null
     },
     isSelected(id: string, circle: Circle) {
       if (this.$props.selected) {
         return this.$props.selected.startId === id && this.$props.selected.startCircle === circle
       }
-      return false;
+      return false
     },
     isLinked(id: string, circle: Circle) {
-      const links = Link.query().where((link: Link) => {
-        const myLink = link as LinkP;
-        return (myLink.start === id && myLink.startCircle === circle) || 
-        (myLink.end === id && myLink.endCircle === circle)
-      }
-      ).get()
+      const links = Link.query()
+        .where((link: Link) => {
+          const myLink = link as LinkP
+          return (
+            (myLink.start === id && myLink.startCircle === circle) ||
+            (myLink.end === id && myLink.endCircle === circle)
+          )
+        })
+        .get()
 
       return links.length > 0
     }
   },
   mounted() {
-    this.element = this.$refs.el as HTMLElement;
+    this.element = this.$refs.el as HTMLElement
   }
 })
 </script>
-  
+
 <style scoped>
 * {
   box-sizing: border-box;
 }
 .block {
   position: absolute;
-  width: 100px;
-  height: 100px;
   background: #4472c4;
   border: 2px solid #3e5f97;
 }
@@ -195,4 +199,4 @@ export default defineComponent({
   background: transparent;
   cursor: pointer;
 }
-  </style>
+</style>

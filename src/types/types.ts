@@ -1,29 +1,29 @@
-import type { Model } from '@vuex-orm/core';
+import type { Model } from '@vuex-orm/core'
 
-export type Nullable<T> = T | null;
-export type Circle = "top" | "right" | "bottom" | "left"
+export type Nullable<T> = T | null
+export type Circle = 'top' | 'right' | 'bottom' | 'left'
 
 export interface BlockP extends Model {
-    id: string;
-    x: number;
-    y: number;
+  id: string
+  x: number
+  y: number
 }
 
 export interface LinkP extends Model {
-    end: string;
-    start: string;
-    endCircle: Circle;
-    startCircle: Circle;
+  end: string
+  start: string
+  endCircle: Circle
+  startCircle: Circle
 }
 
 export interface Line {
-    x1: number;
-    y1: number;
-    x2: number;
-    y2: number;
+  x1: number
+  y1: number
+  x2: number
+  y2: number
 }
 
 export interface SelectedCircle {
-    startId: string,
-    startCircle: string
+  startId: string
+  startCircle: string
 }
