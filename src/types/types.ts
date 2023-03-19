@@ -1,5 +1,6 @@
 import type { Model } from '@vuex-orm/core';
 
+export type Nullable<T> = T | null;
 export type Circle = "top" | "right" | "bottom" | "left"
 
 export interface BlockP extends Model {
@@ -20,4 +21,9 @@ export interface Line {
     y1: number;
     x2: number;
     y2: number;
+}
+
+export interface SelectedCircle {
+    startId: string,
+    startCircle: string
 }

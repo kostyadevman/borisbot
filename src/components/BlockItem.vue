@@ -13,7 +13,7 @@
   <div
       v-for="circle in circles"
       :key="circle"
-      :class="[`circle ${circle}`]"
+      :class="[`circle ${circle}`, {'active': isSelected(block.id, circle)}]"
       @click="$emit('select-circle', block.id, circle)"
     >
   </div>
@@ -37,7 +37,7 @@ interface BlockItemData {
 }
 
 export default defineComponent({
-  props: ["block"],
+  props: ["block", "selected"],
   data(): BlockItemData  {
     return {
       element: this.$refs.el as HTMLElement,
@@ -73,6 +73,13 @@ export default defineComponent({
       document.removeEventListener('mousemove', this.onMouseMove);
       this.element.onmouseup = null;
     },
+    isSelected(id: string, circle: Circle) {
+      console.log(`SELECTED`, this.$props.selected)
+      if (this.$props.selected) {
+        return this.$props.selected.startId === id && this.$props.selected.startCircle === circle
+      }
+      return false;
+    }
   },
   mounted() {
     this.element = this.$refs.el as HTMLElement;
@@ -98,9 +105,13 @@ export default defineComponent({
   justify-content: center;
   width: 20px;
   height: 20px;
-  background: #70ad47;
+  background: rgb(234, 123, 123);
   border: 2px solid #fff;
   border-radius: 50%;
+}
+
+.active {
+  background: #70ad47;
 }
 
 .circle:hover {

@@ -4,6 +4,7 @@
   </button>
   <block-item 
     :block="block"
+    :selected="selected"
     :key="`${block?.$id}`" 
     v-for="block in blocks" 
     @delete="deleteBlockHandler"
@@ -18,14 +19,7 @@ import { defineComponent } from 'vue'
 import BlockItem from '@/components/BlockItem.vue'
 import Block from '@/models/Block'
 import Link from '@/models/Link'
-
-type Nullable<T> = T | null;
-  
-interface SelectedCircle {
-  startId: string,
-  startCircle: string
-}
-
+import type { BlockP, LinkP, Circle, Nullable, SelectedCircle } from '@/types/types';
 
 export default defineComponent({
   components: { BlockItem },
@@ -37,22 +31,25 @@ export default defineComponent({
   computed: {
     blocks (): Block[] {
       return Block.query().get()
-    }
+    },
   },
   methods: {
     addBlockHandler(): void {
       Block.insert({ data: { id: null } })
     },
-    deleteBlockHandler(block: Block): void {
-      block.$delete()
+    deleteBlockHandler(block: BlockP): void {
+      block.$delete();
+      Link.delete((link: Link) => {
+        const myLink = link as LinkP;
+        return myLink.start === block.id || myLink.end === block.id
+      })
     },
     updataBlockHandler(block: Block, x: number, y: number): void {
       block.$update({x, y})
     },
-    selectHandler(id: string, circle: string): void {
-      // console.log(`SELECTED`, this.selected.startId, id)
+    selectHandler(id: string, circle: Circle): void {
       if (this.selected && (this.selected.startId === id)) {
-        console.log(`SAME_BLOCK`)
+        this.selected = null;
         return;
       }
       
