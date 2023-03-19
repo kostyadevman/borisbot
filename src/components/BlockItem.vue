@@ -13,17 +13,25 @@
   <div
       v-for="circle in circles"
       :key="circle"
-      :class="[`circle ${circle}`, {'active': isSelected(block.id, circle)}]"
+      :class="[
+        `circle ${circle}`,
+        {
+          'linked': isLinked(block.id, circle),
+          'active': isSelected(block.id, circle)
+        }
+      ]"
       @click="$emit('select-circle', block.id, circle)"
     >
+    <button class="delete-links-btn" @click="deleteLinksHandler(block, circle)">x</button>
   </div>
-    <button class="delete-btn" @click="deleteClickHandler">x</button>
+    <button class="delete-btn" @click="deleteBlockHandler">x</button>
   </div>
 </template>
   
 <script lang="ts">
 import { defineComponent } from 'vue'
-import type { Circle } from '@/types/types'
+import type { BlockP, Circle, LinkP } from '@/types/types'
+import Link from '@/models/Link'
 
 
 interface BlockItemData {
@@ -50,8 +58,15 @@ export default defineComponent({
     }
   },
   methods: {
-    deleteClickHandler() {
+    deleteBlockHandler() {
       this.$emit('delete', this.block)
+    },
+    deleteLinksHandler(block: BlockP, circle: Circle) {
+      Link.delete((link: Link) => {
+        const myLink = link as LinkP;
+        return (myLink.start === block.id && myLink.startCircle === circle) || 
+          (myLink.end === block.id && myLink.endCircle === circle)
+      })
     },
     beginMove(event: MouseEvent) {
       this.shiftX = event.clientX - this.element.getBoundingClientRect().left;
@@ -74,11 +89,20 @@ export default defineComponent({
       this.element.onmouseup = null;
     },
     isSelected(id: string, circle: Circle) {
-      console.log(`SELECTED`, this.$props.selected)
       if (this.$props.selected) {
         return this.$props.selected.startId === id && this.$props.selected.startCircle === circle
       }
       return false;
+    },
+    isLinked(id: string, circle: Circle) {
+      const links = Link.query().where((link: Link) => {
+        const myLink = link as LinkP;
+        return (myLink.start === id && myLink.startCircle === circle) || 
+        (myLink.end === id && myLink.endCircle === circle)
+      }
+      ).get()
+
+      return links.length > 0
     }
   },
   mounted() {
@@ -110,6 +134,9 @@ export default defineComponent({
   border-radius: 50%;
 }
 
+.linked {
+  background: #a619c2;
+}
 .active {
   background: #70ad47;
 }
@@ -146,6 +173,21 @@ export default defineComponent({
   right: 0;
   background: transparent;
   border: none;
+}
+
+.delete-links-btn {
+  display: none;
+  position: absolute;
+  top: -20px;
+  right: 10px;
+  background: transparent;
+  border: none;
+}
+
+.linked.active .delete-links-btn {
+  display: block;
+  background: transparent;
+  cursor: pointer;
 }
 
 .block:hover .delete-btn {
