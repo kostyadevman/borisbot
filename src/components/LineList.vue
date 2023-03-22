@@ -1,6 +1,11 @@
 <template>
   <template v-if="lines">
-    <svg style="position: absolute; left: 0; top: 0; z-index: -1" width="100vw" height="100vh">
+    <svg style="position: absolute; left: 0; top: 0; z-index: -1" width="100vw" height="100vh"
+    :style="{
+      width: width + 'px',
+      height: height + 'px',
+    }"
+    >
       <line
         v-for="(line, keyLine) in lines"
         :key="keyLine"
@@ -20,6 +25,12 @@ import { BLOCK_WIDTH } from '@/consts/consts'
 import type { Circle, Line, LinkP, BlockP } from '@/types/types'
 
 export default defineComponent({
+  data() {
+    return {
+      width: window.innerWidth,
+      height: window.innerHeight
+    }
+  },
   computed: {
     blocks(): Block[] {
       return Block.query().get()
@@ -32,7 +43,6 @@ export default defineComponent({
         const myLink = link as LinkP
         const startBlock = Block.find(myLink.start) as BlockP
         const endBlock = Block.find(myLink.end) as BlockP
-        endBlock?.x
         const x1 = startBlock.x + this.getOffsetX(myLink.startCircle) // абсцисса начала линии
         const y1 = startBlock.y + this.getOffsetY(myLink.startCircle) // ордината начала линии
         const x2 = endBlock.x + this.getOffsetX(myLink.endCircle) // абсцисса конца линии
@@ -42,7 +52,21 @@ export default defineComponent({
       }, [])
     }
   },
+  mounted() {
+    window.addEventListener('scroll', this.scrollHandler)
+  },
+  unmouted() {
+    window.removeEventListener('scroll', this.scrollHandler)
+  },
   methods: {
+    scrollHandler() {
+      if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight) {
+        this.height = window.innerHeight + window.scrollY
+      }
+      if ((window.innerWidth + window.scrollX) >= document.body.scrollWidth) {
+        this.width = window.innerWidth + window.scrollX
+      }
+    },
     getOffsetX(circle: Circle) {
       switch (circle) {
         case 'top':
